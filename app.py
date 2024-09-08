@@ -54,5 +54,36 @@ def predict_api():
     # Debug: Print the prediction result
     print("Prediction output:", output[0])
     return  jsonify({"predicted_price": output[0]})
+
+
+@app.route('/predict',methods=['POST'])
+def predict():
+    data=list(request.form.values())
+    print(data)
+    # final_input=scalar.transform([np.array(data,(1,-1))])
+    # print(final_input)
+    # output=regmodel.predict(final_input)[0]
+    scaled_data = np.array(data).reshape(1, -1)
+    
+    # Debug: Print the scaled_data
+    print("Scaled data before transformation:", scaled_data)
+    
+    # Transform the features using the scaler
+    new_data = scalar.transform(scaled_data)
+    
+    # Debug: Print the new_data after transformation
+    print("Data after transformation:", new_data)
+    new_data = add_constant(new_data, has_constant='add')
+    
+
+    # Predict using the model
+    output = regmodel.predict(new_data)
+    print("output",output)
+
+
+    return render_template('home.html',prediction_text='The price of the house is {}'.format(output))
+
+
+
 if __name__=="__main__":
     app.run(debug=True)
